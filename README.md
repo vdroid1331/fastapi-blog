@@ -1,0 +1,1 @@
+Run fastapi server in dev mode using `uv run fastapi dev`

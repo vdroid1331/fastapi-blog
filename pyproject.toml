@@ -1,0 +1,23 @@
+[project]
+name = "fastapi-blog"
+version = "0.1.0"
+description = "A FastAPI Blog app."
+readme = "README.md"
+authors = [
+    { name = "Vinayak Gupta", email = "vinayakgupta3112@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]>=0.141.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "app"
+module-root = ""
+
+[tool.fastapi]
+entrypoint = "app.main:app"
