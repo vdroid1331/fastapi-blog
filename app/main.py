@@ -1,13 +1,11 @@
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import Annotated
-
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.exception_handlers import (
     http_exception_handler,
-    request_validation_exception_handler
+    request_validation_exception_handler,
 )
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -19,6 +17,7 @@ from sqlalchemy.orm import selectinload
 from .routers import posts, users
 from . import models
 from .database import Base, engine, get_db
+from .paths import MEDIA_DIR, STATIC_DIR, TEMPLATES_DIR
 from .schemas import (
     PostCreate,
     PostResponse,
@@ -38,14 +37,21 @@ async def lifespan(_app: FastAPI):
     await engine.dispose()
 
 
-BASE_DIR = Path(__file__).resolve().parent
-
 app = FastAPI(lifespan=lifespan)
 
-app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
-templates = Jinja2Templates(directory=BASE_DIR / "templates")
-app.mount("/media", StaticFiles(directory="media"), name="media")
+app.mount(
+    "/static",
+    StaticFiles(directory=STATIC_DIR),
+    name="static",
+)
 
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+app.mount(
+    "/media",
+    StaticFiles(directory=MEDIA_DIR),
+    name="media",
+)
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
 
@@ -112,6 +118,24 @@ async def user_posts_page(
         {"posts": posts, "user": user, "title": f"{user.username}'s Posts"},
     )
 
+
+
+@app.get("/login", include_in_schema=False)
+async def login_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "login.html",
+        {"title": "Login"},
+    )
+
+
+@app.get("/register", include_in_schema=False)
+async def register_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "register.html",
+        {"title": "Register"},
+    )
 
 
 @app.exception_handler(StarletteHTTPException)
