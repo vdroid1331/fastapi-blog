@@ -20,20 +20,19 @@ class UserPublic(BaseModel):
     image_file: str | None
     image_path: str
 
+
 class UserPrivate(UserPublic):
     email: EmailStr
-
 
 
 class UserUpdate(BaseModel):
     username: str | None = Field(default=None, min_length=1, max_length=50)
     email: EmailStr | None = Field(default=None, max_length=120)
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
-
-
 
 
 class PostBase(BaseModel):
@@ -45,6 +44,11 @@ class PostCreate(PostBase):
     pass
 
 
+class PostUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=100)
+    content: str | None = Field(default=None, min_length=1)
+
+
 class PostResponse(PostBase):
     model_config = ConfigDict(from_attributes=True)
 
@@ -53,7 +57,10 @@ class PostResponse(PostBase):
     date_posted: datetime
     author: UserPublic
 
-class PostUpdate(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=100)
-    content: str | None = Field(default=None, min_length=1)
 
+class PaginatedPostsResponse(BaseModel):
+    posts: list[PostResponse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool
